@@ -19,7 +19,6 @@
         name: 'ИП Кузьмина Анастасия Олеговна',
         short: 'ИП Кузьмина А. О.',
         inn: '505021556392',
-        phone: '+7 916 240-18-55',
         sentAt: '17 августа, 18:52',
     };
 
@@ -173,9 +172,6 @@
             state.screen = 'offer';
             render();
         },
-        call: function () {
-            // В прототипе набор номера не эмулируем
-        },
         noop: function () {},
     };
 
@@ -284,7 +280,7 @@
                         <div class="of-carrier__name">${CARRIER.name}</div>
                         <div class="of-carrier__meta">ИНН ${CARRIER.inn}</div>
                         <div class="of-carrier__meta">Приглашение отправлено ${CARRIER.sentAt}</div>
-                        <button class="of-call" data-act="call">${icon('i-phone', 18)}<span>${CARRIER.phone}</span></button>
+                        <div class="of-verify">${icon('i-doc', 16)}<span>Сверьте ИНН с вашим договором</span></div>
                     </div>
                 </div>
 
@@ -420,7 +416,7 @@
             <div class="of-sheet__list">
                 <div class="of-sheet__li">
                     ${icon('i-wallet', 20)}
-                    <span>Оплату за ваши рейсы WB Drive перечисляет ${CARRIER.short}. Перевозчик рассчитывается с вами сам — по вашему договору.</span>
+                    <span>Оплату за ваши рейсы WB Drive перечисляет ${CARRIER.short} Перевозчик рассчитывается с вами сам — по вашему договору.</span>
                 </div>
                 <div class="of-sheet__li">
                     ${icon('i-alert', 20)}
@@ -428,6 +424,7 @@
                 </div>
             </div>
             <div class="of-sheet__q">Вы подписали договор с ${CARRIER.short}?</div>
+            <div class="of-sheet__hint">В вашем договоре должен стоять ИНН ${CARRIER.inn}</div>
             <div class="of-sheet__actions">
                 <button class="of-primary" data-act="contractYes">Да, договор подписан</button>
                 <button class="of-sheet__ghost" data-act="contractNo">Нет, ещё не подписал</button>
@@ -441,7 +438,6 @@
             <div class="of-sheet__text">Оффер никуда не денется — примете, когда подпишете.</div>
             <div class="of-sheet__actions">
                 <button class="of-primary" data-act="closeSheet">Понятно</button>
-                <button class="of-sheet__ghost" data-act="call">Позвонить перевозчику</button>
             </div>`;
     }
 
@@ -541,7 +537,7 @@
         if (state.screen === 'unbound') return 'Окно для исправления ошибки: пока первое задание не начато, привязку можно снять.';
         if (state.screen === 'task') return 'Задание от перевозчика. Оплата уходит ему — на экране это названо прямо.';
         if (state.mode === 'asis') return 'Текущий экран. Плашка про счёт экспедитора здесь уже есть, но читается как декор: тот же оттенок, что у кнопки, а красный отказ отпугивает от безопасного выхода.';
-        return 'Предложение: перевозчик опознаваем (телефон, дата приглашения), схема денег — содержание экрана, а не сноска. Красный снят с отказа.';
+        return 'Предложение: ИНН и дата приглашения с прямой просьбой сверить их с договором, схема денег — содержание экрана, а не сноска. Красный снят с отказа. Контактов перевозчика до принятия оффера нет: это персональные данные.';
     }
 
     function renderDemo() {
