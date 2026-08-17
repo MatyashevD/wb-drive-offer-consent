@@ -1,0 +1,203 @@
+/* ============================================================
+   WB Drive · базовые токены и мобильный фрейм
+   Токены взяты из Figma-библиотеки WB Drive (DS UI-kit):
+   цвета, радиусы, типографика. Здесь оставлено только то,
+   что нужно этому прототипу.
+   ============================================================ */
+
+:root {
+    /* — Colors — */
+    --mo-bg-level--1: #f6f6f9;
+    --mo-bg-level-1-base: #ffffff;
+    --mo-bg-level-2: #f6f6f9;
+    --mo-text-icon-primary: #242429;
+    --mo-text-icon-secondary: #808093;
+    --mo-text-icon-tertiary: #9393a5;
+    --mo-controls-secondary-default: #f1f1f5;
+    --mo-separator-default: rgba(119, 119, 136, 0.15);
+    --mo-accent-purple: #a73afd;
+    --mo-tabbar-inactive: #808093;
+    --mo-warning-bg: #fff4d6;
+    --mo-warning-fg: #8a6300;
+    /* Красный — только для деструктивных действий. На экране «как сейчас»
+       он стоит на отказе, и в этом одна из причин инцидента. */
+    --mo-destructive: #f5333f;
+
+    /* — Radii — */
+    --mo-CRx4: 16px;
+    --mo-CRx5: 20px;
+    --mo-CRx6: 24px;
+    --mo-CRpill: 999px;
+
+    /* — Typography (Figma: ALS Hauss → fallback Inter) — */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --font-size-body: 15px;
+    --font-line-body: 20px;
+    --font-size-action: 17px;
+    --font-line-action: 20px;
+    --font-size-title2: 19px;
+    --font-line-title2: 23px;
+    --font-size-title1: 24px;
+    --font-line-title1: 29px;
+
+    /* — Shadows — */
+    --mo-shadow-tabbar: 0 -4px 8px rgba(24, 24, 27, 0.07);
+}
+
+/* ============================================================
+   Reset
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #18181b;
+    font-family: var(--font-family);
+    color: var(--mo-text-icon-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+    font-family: inherit;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+}
+
+/* Защита от «гигантских» SVG: если у иконки внутри .phone не задан
+   размер, даём дефолт 24×24, чтобы она не вылезла за макет. */
+.phone svg:not([width]) {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+}
+
+/* ============================================================
+   Мобильный фрейм: на десктопе — «телефон в руке»,
+   на мобильном — на весь экран.
+   ============================================================ */
+.desk-hint {
+    display: none;
+    color: #a0a0b2;
+    font-size: 12px;
+    line-height: 17px;
+}
+.desk-hint__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #1b1b21;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.desk-hint strong {
+    color: #fff;
+    font-size: 13px;
+}
+
+.phone {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    background: var(--mo-bg-level--1);
+    overflow: hidden;
+    position: relative;
+}
+
+.phone__screen {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Узкое окно десктопа: всё в один столбик, страница прокручивается.
+   Плавающих плашек нет — на ноутбуке с высотой экрана ~900px рамка
+   844px не оставляет под них места, и они перекрывали прототип. */
+@media (min-width: 600px) {
+    body {
+        background: radial-gradient(circle at 30% 0%, #2a2a35 0%, #0e0e12 60%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 24px;
+    }
+    .desk-hint {
+        display: block;
+        order: 1;
+        width: 390px;
+    }
+    .phone {
+        order: 2;
+        flex: none;
+        /* Размер экрана всегда честные 390×844: пропорции устройства не
+           трогаем, в невысокое окно вписываемся масштабом (см. ниже). */
+        width: 390px;
+        /* Снимаем max-width из мобильного правила: вместе с отрицательными
+           полями он схлопывал ширину рамки до размера колонки. */
+        max-width: none;
+        height: 844px;
+        transform: scale(var(--phone-scale, 1));
+        /* Отрицательные поля убирают место, которое рамка занимала бы
+           без масштаба, — иначе вокруг неё остаётся пустая полоса. */
+        margin: calc(844px * (var(--phone-scale, 1) - 1) / 2) calc(390px * (var(--phone-scale, 1) - 1) / 2);
+        border-radius: 48px;
+        box-shadow:
+            0 0 0 12px #1c1c20,
+            0 0 0 14px #2a2a30,
+            0 40px 80px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+    }
+    .phone__screen {
+        border-radius: 36px;
+        height: 100%;
+    }
+}
+
+/* Есть место под колонку управления слева от телефона */
+@media (min-width: 780px) {
+    body {
+        display: grid;
+        grid-template-columns: 280px minmax(0, auto);
+        grid-template-areas:
+            'hint  phone'
+            'demo  phone';
+        align-content: center;
+        justify-content: center;
+        gap: 14px 30px;
+        padding: 20px;
+    }
+    .desk-hint {
+        grid-area: hint;
+        align-self: end;
+        width: auto;
+    }
+    .phone {
+        grid-area: phone;
+        align-self: center;
+    }
+}
+
+/* Вписываем рамку в невысокое окно ноутбука масштабом, а не сжатием:
+   844px + 28px «безеля» от box-shadow + 40px отступов страницы требуют
+   ~912px высоты, а у браузера на 13" их около 730. */
+@media (max-height: 910px) { body { --phone-scale: 0.9; } }
+@media (max-height: 830px) { body { --phone-scale: 0.85; } }
+@media (max-height: 790px) { body { --phone-scale: 0.8; } }
+@media (max-height: 750px) { body { --phone-scale: 0.75; } }
+@media (max-height: 710px) { body { --phone-scale: 0.7; } }
+@media (max-height: 670px) { body { --phone-scale: 0.65; } }
+@media (max-height: 630px) { body { --phone-scale: 0.6; } }
