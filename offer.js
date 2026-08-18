@@ -19,7 +19,7 @@
         name: 'ИП Кузьмина Анастасия Олеговна',
         short: 'ИП Кузьмина А. О.',
         inn: '505021556392',
-        sentAt: '17 августа, 18:52',
+        sentAt: '17 августа',
     };
 
     const TASK = {
@@ -133,24 +133,38 @@
         closeSheet: function () {
             closeSheet();
         },
+        // «Сейчас»: отказ одним тапом, красной кнопкой и без пути назад
         decline: function () {
             state.screen = 'declined';
-            if (state.mode === 'new') startUndo();
             render();
+        },
+        askDecline: function () {
+            openSheet('decline');
+        },
+        // Отказ обратим, поэтому подтверждения нет — есть отмена
+        declineTerms: function () {
+            closeSheet(function () {
+                state.screen = 'declined';
+                startUndo();
+                render();
+            });
+        },
+        declineLater: function () {
+            ACTIONS.declineTerms();
+        },
+        declineUnknown: function () {
+            closeSheet(function () {
+                state.screen = 'reported';
+                render();
+            });
         },
         undoDecline: function () {
             stopUndo();
             state.screen = 'offer';
             render();
         },
-        askReport: function () {
-            openSheet('report');
-        },
-        report: function () {
-            closeSheet(function () {
-                state.screen = 'reported';
-                render();
-            });
+        howPay: function () {
+            openSheet('howPay');
         },
         unbind: function () {
             state.confirmed = false;
@@ -269,44 +283,30 @@
             </div>`;
     }
 
+    // Перевозчик — предмет экрана, поэтому его название заголовок, а не
+    // карточка. Оба положения legal — один блок из двух строк, подробности
+    // и схема уехали в справку по ссылке: на первом экране нужна суть, а не
+    // весь текст сразу.
     function renderOffer() {
         return `
             ${statusbar()}
-            ${head('Оффер перевозчика', 'noop')}
+            ${head('Новый оффер', 'noop')}
             <div class="of-body">
-                <div class="of-carrier">
-                    <span class="of-carrier__ava">${icon('i-company', 24)}</span>
-                    <div>
-                        <div class="of-carrier__name">${CARRIER.name}</div>
-                        <div class="of-carrier__meta">ИНН ${CARRIER.inn}</div>
-                        <div class="of-carrier__meta">Приглашение отправлено ${CARRIER.sentAt}</div>
-                        <div class="of-verify">${icon('i-doc', 16)}<span>Сверьте ИНН с вашим договором</span></div>
-                    </div>
+                <h1 class="of-title">${CARRIER.name}</h1>
+                <div class="of-meta">ИНН ${CARRIER.inn} · приглашение ${CARRIER.sentAt}</div>
+
+                <div class="of-note">
+                    <p class="of-note__p">Оплату за выполненные перевозки получает перевозчик — он рассчитывается с вами сам.</p>
+                    <p class="of-note__p">Не принимайте оффер, пока не подписали с ним договор.</p>
+                    <button class="of-note__more" data-act="howPay">
+                        <span>Как устроена оплата</span>
+                        ${icon('i-chevron', 20)}
+                    </button>
                 </div>
-
-                ${moneyFlow()}
-
-                <div class="of-fact">
-                    <span class="of-fact__ico">${icon('i-wallet', 22)}</span>
-                    <div>
-                        <div class="of-fact__title">Деньги за выполненные перевозки получает перевозчик</div>
-                        <div class="of-fact__text">Он рассчитывается с вами по вашему договору или иным договорённостям между вами. WB Drive в этих расчётах не участвует.</div>
-                    </div>
-                </div>
-
-                <div class="of-fact">
-                    <span class="of-fact__ico">${icon('i-doc', 22)}</span>
-                    <div>
-                        <div class="of-fact__title">Нет договора — не принимайте оффер</div>
-                        <div class="of-fact__text">Перевозку вы выполните, а оснований требовать оплату у вас не будет.</div>
-                    </div>
-                </div>
-
-                <button class="of-unknown" data-act="askReport">Я не знаю этого перевозчика</button>
             </div>
             ${bottom(`
                 <button class="of-primary" data-act="askConfirm">Принять оффер</button>
-                <button class="of-secondary" data-act="decline">Отклонить</button>
+                <button class="of-secondary" data-act="askDecline">Отклонить</button>
             `)}`;
     }
 
@@ -363,12 +363,12 @@
     function renderReported() {
         return `
             ${statusbar()}
-            ${head('Жалоба отправлена', 'noop')}
+            ${head('Офферы', 'noop')}
             <div class="of-body">
                 <div class="of-result">
                     <span class="of-result__ico is-neutral">${icon('i-shield', 36)}</span>
-                    <div class="of-result__title">Оффер скрыт</div>
-                    <div class="of-result__text">Поддержка проверит, кто отправил приглашение, и свяжется с вами. Принимать оффер не нужно.</div>
+                    <div class="of-result__title">Оффер отклонён</div>
+                    <div class="of-result__text">Мы передали в поддержку, что приглашение пришло от незнакомого перевозчика. Она проверит, кто его отправил.</div>
                 </div>
             </div>
             ${bottom('<button class="of-primary" data-act="toOffer">К списку офферов</button>')}`;
@@ -413,16 +413,8 @@
     function sheetConfirm() {
         return `
             <div class="of-sheet__title">Деньги придут перевозчику</div>
-            <div class="of-sheet__list">
-                <div class="of-sheet__li">
-                    ${icon('i-wallet', 20)}
-                    <span>После выполненной перевозки оплату WB Drive перечисляет ${CARRIER.short} Перевозчик рассчитывается с вами сам — по вашему договору или иным договорённостям между вами.</span>
-                </div>
-                <div class="of-sheet__li">
-                    ${icon('i-alert', 20)}
-                    <span>Без договора у вас не будет оснований требовать оплату: WB Drive в расчётах между вами не участвует.</span>
-                </div>
-            </div>
+            <div class="of-sheet__text">После выполненной перевозки оплату получает ${CARRIER.short} и рассчитывается с вами сам — по вашему договору или иным договорённостям между вами.</div>
+            <div class="of-sheet__text">Без договора у вас не будет оснований требовать оплату.</div>
             <div class="of-sheet__q">Вы подписали договор с ${CARRIER.short}?</div>
             <div class="of-sheet__hint">В вашем договоре должен стоять ИНН ${CARRIER.inn}</div>
             <div class="of-sheet__actions">
@@ -441,12 +433,29 @@
             </div>`;
     }
 
-    function sheetReport() {
+    // Справка: схема живёт здесь, а не на первом экране. Кому нужна
+    // картинка — откроет, остальным она не мешает читать главное.
+    function sheetHowPay() {
         return `
-            <div class="of-sheet__title">Не знаете этого перевозчика?</div>
-            <div class="of-sheet__text">Если вы не договаривались о работе с ${CARRIER.short}, не принимайте оффер. Мы скроем его и передадим в поддержку — она проверит, кто и зачем отправил приглашение.</div>
+            <div class="of-sheet__title">Как устроена оплата</div>
+            ${moneyFlow()}
+            <div class="of-sheet__text">После выполненной перевозки WB Drive перечисляет оплату ${CARRIER.short} Перевозчик рассчитывается с вами по вашему договору или иным договорённостям между вами — WB Drive в этих расчётах не участвует.</div>
             <div class="of-sheet__actions">
-                <button class="of-primary" data-act="report">Скрыть и пожаловаться</button>
+                <button class="of-primary" data-act="closeSheet">Понятно</button>
+            </div>`;
+    }
+
+    // Причина отказа вместо отдельной ссылки «я не знаю перевозчика»:
+    // экран теряет элемент, а антифрод получает сигнал.
+    function sheetDecline() {
+        return `
+            <div class="of-sheet__title">Почему отклоняете?</div>
+            <div class="of-choices">
+                <button class="of-choice" data-act="declineUnknown">Это не мой перевозчик</button>
+                <button class="of-choice" data-act="declineTerms">Не подходят условия</button>
+                <button class="of-choice" data-act="declineLater">Пока не готов принять</button>
+            </div>
+            <div class="of-sheet__actions">
                 <button class="of-sheet__ghost" data-act="closeSheet">Отмена</button>
             </div>`;
     }
@@ -465,7 +474,8 @@
         if (!state.sheet) return '';
         const inner = state.sheet === 'confirm' ? sheetConfirm()
             : state.sheet === 'noContract' ? sheetNoContract()
-            : state.sheet === 'report' ? sheetReport()
+            : state.sheet === 'howPay' ? sheetHowPay()
+            : state.sheet === 'decline' ? sheetDecline()
             : sheetFirstTask();
         const openCls = state.sheetShown ? ' is-open' : '';
         return `
@@ -523,7 +533,8 @@
     function note() {
         if (state.sheet === 'confirm') return 'Раскрытие в момент интента: не текст рядом с кнопкой, а вопрос, на который надо ответить. У обоих ответов есть осмысленный результат, поэтому врать незачем.';
         if (state.sheet === 'noContract') return 'Честный ответ ничего не отнимает: оффер остаётся, водитель вернётся к нему после подписания договора.';
-        if (state.sheet === 'report') return 'Аварийный выход, если приглашение пришло от незнакомого перевозчика: оффер скрывается, а продукт получает сигнал для детекта массовых рассылок.';
+        if (state.sheet === 'howPay') return 'Подробности и схема живут в справке, а не на первом экране: кому нужна картинка — откроет, остальным она не мешает читать главное.';
+        if (state.sheet === 'decline') return 'Причина вместо отдельной ссылки «я не знаю перевозчика»: экран теряет элемент, а «это не мой перевозчик» становится сигналом для детекта массовых рассылок.';
         if (state.sheet === 'firstTask') return 'Вторая линия защиты: напоминание там, где появляются деньги и необратимый труд. Один раз на перевозчика.';
         if (state.screen === 'accepted') {
             return state.confirmed
@@ -533,11 +544,11 @@
         if (state.screen === 'declined') return state.mode === 'asis'
             ? 'В продакшене отказ покрашен красным, будто он опасен, — и водитель выбирает «Принять».'
             : 'Отказ безопасен и обратим: вместо диалога подтверждения — короткая отмена в снекбаре.';
-        if (state.screen === 'reported') return 'Жалоба закрывает оффер для водителя и даёт антифроду сигнал о рассылке.';
+        if (state.screen === 'reported') return 'Отказ с причиной «не мой перевозчик» закрывает оффер и даёт антифроду сигнал о рассылке.';
         if (state.screen === 'unbound') return 'Окно для исправления ошибки: пока первое задание не начато, привязку можно снять.';
         if (state.screen === 'task') return 'Задание от перевозчика. Оплата уходит ему — на экране это названо прямо.';
         if (state.mode === 'asis') return 'Текущий экран. Плашка про счёт экспедитора здесь уже есть, но читается как декор: тот же оттенок, что у кнопки, а красный отказ отпугивает от безопасного выхода.';
-        return 'Предложение: ИНН и дата приглашения с прямой просьбой сверить их с договором, схема денег — содержание экрана, а не сноска. Красный снят с отказа. Контактов перевозчика до принятия оффера нет: это персональные данные.';
+        return 'Предложение: перевозчик — заголовок экрана, оба положения legal — один блок из двух строк, подробности по ссылке. Красный снят с отказа, контактов перевозчика до принятия нет: это персональные данные.';
     }
 
     function renderDemo() {
