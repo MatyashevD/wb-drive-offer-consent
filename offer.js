@@ -246,18 +246,18 @@
     function moneyFlow() {
         return `
             <div class="of-flow">
-                <div class="of-flow__cap">Как идут деньги за ваши рейсы</div>
+                <div class="of-flow__cap">Как идут деньги за выполненную перевозку</div>
                 <div class="of-flow__row">
                     <div class="of-flow__step">
                         <span class="of-flow__ico">${icon('i-platform', 21)}</span>
                         <span class="of-flow__name">WB Drive</span>
-                        <span class="of-flow__role">даёт задания</span>
+                        <span class="of-flow__role">перечисляет</span>
                     </div>
                     <span class="of-flow__arr">${icon('i-arrow-right', 18)}</span>
                     <div class="of-flow__step is-key">
                         <span class="of-flow__ico">${icon('i-wallet', 21)}</span>
                         <span class="of-flow__name">Перевозчик</span>
-                        <span class="of-flow__role">получает оплату</span>
+                        <span class="of-flow__role">получает</span>
                     </div>
                     <span class="of-flow__arr">${icon('i-arrow-right', 18)}</span>
                     <div class="of-flow__step">
@@ -289,8 +289,8 @@
                 <div class="of-fact">
                     <span class="of-fact__ico">${icon('i-wallet', 22)}</span>
                     <div>
-                        <div class="of-fact__title">Деньги за рейсы получает перевозчик</div>
-                        <div class="of-fact__text">Он рассчитывается с вами сам — по вашему договору. WB Drive в расчётах не участвует.</div>
+                        <div class="of-fact__title">Деньги за выполненные перевозки получает перевозчик</div>
+                        <div class="of-fact__text">Он рассчитывается с вами по вашему договору или иным договорённостям между вами. WB Drive в этих расчётах не участвует.</div>
                     </div>
                 </div>
 
@@ -298,7 +298,7 @@
                     <span class="of-fact__ico">${icon('i-doc', 22)}</span>
                     <div>
                         <div class="of-fact__title">Нет договора — не принимайте оффер</div>
-                        <div class="of-fact__text">Задание вы выполните, а требовать оплату будет не с кого.</div>
+                        <div class="of-fact__text">Перевозку вы выполните, а оснований требовать оплату у вас не будет.</div>
                     </div>
                 </div>
 
@@ -320,7 +320,7 @@
             ? `<div class="of-receipt">
                     <div class="of-receipt__cap">Вы подтвердили</div>
                     <div class="of-receipt__item">${icon('i-check-circle', 18)}<span>Договор с ${CARRIER.short} подписан</span></div>
-                    <div class="of-receipt__item">${icon('i-check-circle', 18)}<span>Оплату за задания получает перевозчик и рассчитывается с вами сам</span></div>
+                    <div class="of-receipt__item">${icon('i-check-circle', 18)}<span>Оплату за выполненные перевозки получает перевозчик и рассчитывается с вами сам</span></div>
                     <div class="of-receipt__time">${TODAY}, ${NOW} · сохранено в профиле</div>
                </div>`
             : '';
@@ -336,7 +336,7 @@
                 <div class="of-result">
                     <span class="of-result__ico">${icon('i-check-filled', 36)}</span>
                     <div class="of-result__title">Вы работаете с ${CARRIER.short}</div>
-                    <div class="of-result__text">Оплату за задания получает перевозчик и рассчитывается с вами сам.</div>
+                    <div class="of-result__text">Оплату за выполненные перевозки получает перевозчик и рассчитывается с вами сам.</div>
                     ${receipt}
                 </div>
             </div>
@@ -416,11 +416,11 @@
             <div class="of-sheet__list">
                 <div class="of-sheet__li">
                     ${icon('i-wallet', 20)}
-                    <span>Оплату за ваши рейсы WB Drive перечисляет ${CARRIER.short} Перевозчик рассчитывается с вами сам — по вашему договору.</span>
+                    <span>После выполненной перевозки оплату WB Drive перечисляет ${CARRIER.short} Перевозчик рассчитывается с вами сам — по вашему договору или иным договорённостям между вами.</span>
                 </div>
                 <div class="of-sheet__li">
                     ${icon('i-alert', 20)}
-                    <span>Если договора нет, требовать оплату будет не с кого: WB Drive в расчётах не участвует.</span>
+                    <span>Без договора у вас не будет оснований требовать оплату: WB Drive в расчётах между вами не участвует.</span>
                 </div>
             </div>
             <div class="of-sheet__q">Вы подписали договор с ${CARRIER.short}?</div>
@@ -434,7 +434,7 @@
     function sheetNoContract() {
         return `
             <div class="of-sheet__title">Сначала договор</div>
-            <div class="of-sheet__text">Не принимайте оффер, пока не подписали договор с перевозчиком: без него вы не сможете получить оплату за выполненные задания.</div>
+            <div class="of-sheet__text">Не принимайте оффер, пока не подписали договор с перевозчиком: без него вы не сможете получить оплату за выполненные перевозки.</div>
             <div class="of-sheet__text">Оффер никуда не денется — примете, когда подпишете.</div>
             <div class="of-sheet__actions">
                 <button class="of-primary" data-act="closeSheet">Понятно</button>
@@ -454,7 +454,7 @@
     function sheetFirstTask() {
         return `
             <div class="of-sheet__title">Первый рейс с этим перевозчиком</div>
-            <div class="of-sheet__text">Оплату за задание получит ${CARRIER.short} и рассчитается с вами по вашему договору. WB Drive в расчётах между вами не участвует.</div>
+            <div class="of-sheet__text">После выполненной перевозки оплату получит ${CARRIER.short} Он рассчитается с вами по вашему договору или иным договорённостям между вами.</div>
             <div class="of-sheet__actions">
                 <button class="of-primary" data-act="closeSheet">Понятно, начинаю</button>
                 <button class="of-sheet__ghost" data-act="toOffer">Отказаться от задания</button>
